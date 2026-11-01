@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Swap Your RPC</title>
+    <style>
+      /* Minimal CSS: readable on a projector, no visual flourishes. */
+      :root {
+        color-scheme: light dark;
+        --bg: #0e0e10;
+        --panel: #17171b;
+        --text: #e9e9ec;
+        --muted: #9a9aa2;
+        --accent: #78dce8;
+        --grey: #3a3a44;
+        --green: #87d96c;
+        --red: #ff6b6b;
+      }
+      html, body { background: var(--bg); color: var(--text); }
+      body {
+        margin: 0; padding: 24px;
+        font: 18px/1.5 ui-sans-serif, system-ui, sans-serif;
+      }
+      h1 { font-size: 28px; margin: 0 0 16px; }
+      h2 { font-size: 20px; margin: 0; }
+      header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+      select, button {
+        font: inherit; padding: 8px 12px; border-radius: 6px;
+        background: var(--panel); color: var(--text); border: 1px solid var(--grey);
+      }
+      button { cursor: pointer; }
+      main { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 1200px; }
+      section {
+        background: var(--panel); border-radius: 8px; padding: 16px;
+        display: flex; flex-direction: column; gap: 10px; min-height: 200px;
+        min-width: 0; /* let long error texts wrap instead of widening the grid */
+      }
+      .head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+      .badge {
+        padding: 3px 10px; border-radius: 999px; font-size: 14px;
+        background: var(--grey); color: var(--text);
+      }
+      .badge.verified { background: #1a3b1a; color: var(--green); }
+      /* Rejections carry the full Colibri error, which can include a JSON payload. */
+      .badge.rejected {
+        background: #3b1a1a; color: var(--red); border-radius: 6px;
+        overflow-wrap: anywhere; max-height: 6em; overflow-y: auto;
+      }
+      .value { font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; }
+      .muted { color: var(--muted); font-size: 14px; }
+      pre {
+        margin: 0; white-space: pre-wrap; word-break: break-all;
+        background: #000; color: #cfcfd4; padding: 10px; border-radius: 6px;
+        font-size: 14px; max-height: 320px; overflow: auto;
+      }
+      ul { margin: 0; padding-left: 18px; }
+      li { margin-bottom: 4px; font-variant-numeric: tabular-nums; }
+      code { font-size: 14px; color: var(--accent); }
+      .row { display: flex; justify-content: space-between; gap: 12px; }
+      .row > * { min-width: 0; overflow-wrap: anywhere; text-align: right; }
+      .row > .muted { flex-shrink: 0; text-align: left; }
+      .badge:empty { display: none; }
+    </style>
+  </head>
+  <body>
+    <h1>Swap Your RPC</h1>
+
+    <header>
+      <label for="rpc">Data source:</label>
+      <select id="rpc"></select>
+      <button id="load">Load</button>
+      <span class="muted">
+        Step 0: naive provider. Step 1: swap it for Colibri in <code>src/main.js</code>.
+      </span>
+    </header>
+
+    <main>
+      <section id="panel-account">
+        <div class="head"><h2>Account</h2><span class="badge" data-badge></span></div>
+        <div class="row"><span class="muted">Address</span>
+          <code data-address>&mdash;</code></div>
+        <div class="row"><span class="muted">ETH balance</span>
+          <span class="value" data-eth>&mdash;</span></div>
+        <div class="row"><span class="muted">USDC balance</span>
+          <span class="value" data-usdc>&mdash;</span></div>
+      </section>
+
+      <section id="panel-transfers">
+        <div class="head"><h2>USDC transfers</h2><span class="badge" data-badge></span></div>
+        <div class="muted" data-range></div>
+        <ul data-list></ul>
+      </section>
+
+      <section id="panel-tx">
+        <div class="head"><h2>Pending transaction</h2><span class="badge" data-badge></span></div>
+        <div class="muted">A classic unlimited approve. Nothing is signed or sent.</div>
+        <div class="row"><span class="muted">To</span>       <code data-to>&mdash;</code></div>
+        <div class="row"><span class="muted">Function</span> <code>approve(spender, amount)</code></div>
+        <div class="row"><span class="muted">Spender</span>  <code data-spender>&mdash;</code></div>
+        <div class="row"><span class="muted">Amount</span>   <code>2^256 - 1 (unlimited)</code></div>
+        <button id="simulate">Simulate &amp; explain</button>
+        <pre data-sim hidden></pre>
+      </section>
+
+      <section id="panel-provider">
+        <div class="head"><h2>What the provider sees</h2>
+          <button id="clear-log">Clear</button>
+        </div>
+        <div class="muted">Outgoing HTTP requests from this page.</div>
+        <pre data-log></pre>
+      </section>
+    </main>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
