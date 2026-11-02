@@ -12,7 +12,7 @@
 // believes whatever comes back -- which is why the lying RPC can show a wrong
 // balance without any warning.
 
-import { BrowserProvider, Contract, Interface, formatEther, formatUnits, MaxUint256 } from "ethers";
+import { JsonRpcProvider, BrowserProvider, Contract, Interface, formatEther, formatUnits, MaxUint256 } from "ethers";
 import Colibri, { Strategy } from "@corpus-core/colibri-stateless";
 import {
   PROVER_URL, RPC_OPTIONS, USDC_ADDRESS, USDC_ABI, DEMO_ADDRESS,

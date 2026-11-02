@@ -12,7 +12,7 @@
 // believes whatever comes back -- which is why the lying RPC can show a wrong
 // balance without any warning.
 
-import { JsonRpcProvider, Contract, Interface, formatEther, formatUnits, MaxUint256 } from "ethers";
+import { JsonRpcProvider, BrowserProvider, Contract, Interface, formatEther, formatUnits, MaxUint256 } from "ethers";
 import {
   PROVER_URL, RPC_OPTIONS, USDC_ADDRESS, USDC_ABI, DEMO_ADDRESS,
   LOG_FROM_BLOCK, LOG_TO_BLOCK, DEMO_SPENDER,
@@ -51,7 +51,6 @@ let providerKind = "plain";
 // Today ethers talks to the RPC directly and trusts every answer. Replace the
 // body of this function so ethers talks to Colibri instead:
 //
-//   import { BrowserProvider } from "ethers";
 //   import Colibri, { Strategy } from "@corpus-core/colibri-stateless";
 //
 //   providerKind = "colibri";

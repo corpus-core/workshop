@@ -12,15 +12,11 @@ export const PROVER_URL = "https://mainnet.colibri-proof.tech";
 // swaps only the provider and the UI reveals it. Participants do not run the
 // lying RPC themselves; it is hosted (source: github.com/corpus-core/lying-rpc).
 export const RPC_OPTIONS = [
-  // Lies in eth_getBalance only. Colibri never asks for it.
-  { label: "Lying RPC (plain)",  url: "https://lying-rpc.colibri-proof.tech/plain"  },
-  // Also lies in the `balance` field of eth_getProof, proof nodes untouched.
-  // Colibri reads the balance from the proven leaf, so it never sees this lie.
-  { label: "Lying RPC (field)",  url: "https://lying-rpc.colibri-proof.tech/field"  },
-  // Forges the whole Merkle path; only the signed state root gives it away.
-  { label: "Lying RPC (forged)", url: "https://lying-rpc.colibri-proof.tech/forged" },
+  // Lies about the ETH balance of DEMO_ADDRESS everywhere, including a forged
+  // Merkle proof; only the signed state root gives it away.
+  { label: "Lying RPC", url: "https://lying-rpc.colibri-proof.tech/forged" },
   // Pass-through to the honest upstream, as a sanity check.
-  { label: "Honest RPC",         url: "https://lying-rpc.colibri-proof.tech/honest" },
+  { label: "Honest RPC", url: "https://lying-rpc.colibri-proof.tech/honest" },
 ];
 
 // USDC mainnet contract and the three ABI entries the app needs.
@@ -43,7 +39,7 @@ export const DEMO_ADDRESS = "0x7d8eb200c45c273e3bef1bc55c09f76805158e96";
 // TODO(simon): re-check before the workshop that the upstream still serves
 // receipts for this range (4 incoming transfers as of Nov 2026).
 export const LOG_FROM_BLOCK = 26321289;
-export const LOG_TO_BLOCK   = 26321297;
+export const LOG_TO_BLOCK = 26321297;
 
 // Pending transaction shown in panel 3: USDC approve(DEMO_SPENDER, unlimited).
 // An unknown spender with an unlimited allowance is the classic drainer setup.

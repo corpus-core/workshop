@@ -18,8 +18,8 @@ npm install
 npm run dev
 ```
 
-Open the printed URL. The app loads against
-`https://lying-rpc.colibri-proof.tech/plain` by default -- so you see the lie
+Open the printed URL. The app loads against the lying RPC
+(`https://lying-rpc.colibri-proof.tech/forged`) by default -- so you see the lie
 right away without any extra setup. Then edit [`src/main.js`](src/main.js), one
 STEP marker at a time. If anything gets stuck you can always drop in the next
 checkpoint:
@@ -45,19 +45,17 @@ If you only want to look, these three hosted demos cover the same ground:
 
 ### Step 1 -- verify (`createProvider`)
 
-Replace ethers' `JsonRpcProvider` with `new BrowserProvider(colibri)`, where
-`colibri` runs in `prover_mode: "hybrid"`. Colibri is an EIP-1193 provider, so
-ethers does not care. Only `createProvider` changes; the rest of the file is
-untouched. Try each lying mode in the dropdown:
+Import Colibri and replace ethers' `JsonRpcProvider` with
+`new BrowserProvider(colibri)`, where `colibri` runs in `prover_mode: "hybrid"`.
+Colibri is an EIP-1193 provider, so ethers does not care. Only the import and
+`createProvider` change; the rest of the file is untouched. Then load both
+data sources:
 
-- `/plain` -> correct value, `verified`. Colibri never asked
-  `eth_getBalance`; it asked `eth_getProof` and verified the account itself.
-- `/field` -> correct value, `verified`. The lie sits only in the
-  convenience `balance` field of the proof answer; Colibri reads the balance
-  from the proven account leaf and never looks at that field.
-- `/forged` -> `rejected`. The leaf itself was rewritten and re-hashed, so
-  the computed state root no longer matches the signed block header and
-  Colibri refuses to return a value.
+- Lying RPC -> `rejected`. Colibri never trusts `eth_getBalance`; it asks
+  for `eth_getProof`. The lying RPC even forges that proof and re-hashes it up
+  to the root, but the computed state root no longer matches the signed block
+  header, so Colibri refuses to return a value.
+- Honest RPC -> correct value, `verified`.
 
 ### Step 2 -- simulate (`colibri_simulateTransaction`)
 
@@ -86,10 +84,10 @@ use `globalThis.fetch`, so you see their prover and RPC traffic there.
 ## The lying RPC
 
 Hosted at `https://lying-rpc.colibri-proof.tech`, source in a separate repo:
-<https://github.com/corpus-core/lying-rpc>. You do not need to run it; the four
-URLs in the dropdown point to the hosted instance. If you want to inspect or
-host your own, the server-side README explains the forgery and ships with a
-`Dockerfile` + `docker-compose.yml`.
+<https://github.com/corpus-core/lying-rpc>. You do not need to run it; both
+URLs in the dropdown point to the hosted instance. The server offers more
+lying modes than the app uses (e.g. one that lies only in `eth_getBalance`);
+its README explains them and ships with a `Dockerfile` + `docker-compose.yml`.
 
 ## Repo layout
 
