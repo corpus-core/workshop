@@ -80,7 +80,7 @@ document.querySelector("#panel-tx [data-spender]").textContent = DEMO_SPENDER;
 // The pending transaction: approve(DEMO_SPENDER, unlimited) on USDC.
 const DEMO_TX = {
   from: DEMO_ADDRESS,
-  to:   USDC_ADDRESS,
+  to: USDC_ADDRESS,
   data: new Interface(USDC_ABI).encodeFunctionData("approve", [DEMO_SPENDER, MaxUint256]),
 };
 
@@ -102,13 +102,13 @@ async function loadAll() {
 
   // Panel 1 -- Account. Clear old values first so a rejection never sits
   // next to a number from the previous data source.
-  const ethField  = document.querySelector("#panel-account [data-eth]");
+  const ethField = document.querySelector("#panel-account [data-eth]");
   const usdcField = document.querySelector("#panel-account [data-usdc]");
   ethField.textContent = usdcField.textContent = "—";
   setBadge("panel-account", "loading");
   setBadge("panel-transfers", "loading");
   try {
-    ethField.textContent  = `${formatEther(await provider.getBalance(DEMO_ADDRESS))} ETH`;
+    ethField.textContent = `${formatEther(await provider.getBalance(DEMO_ADDRESS))} ETH`;
     usdcField.textContent = `${formatUnits(await usdc.balanceOf(DEMO_ADDRESS), 6)} USDC`;
     setBadge("panel-account", goodBadge);
   } catch (error) {
@@ -119,13 +119,13 @@ async function loadAll() {
   const list = document.querySelector("#panel-transfers [data-list]");
   list.innerHTML = "";
   try {
-    const sent     = await usdc.queryFilter(usdc.filters.Transfer(DEMO_ADDRESS, null), LOG_FROM_BLOCK, LOG_TO_BLOCK);
+    const sent = await usdc.queryFilter(usdc.filters.Transfer(DEMO_ADDRESS, null), LOG_FROM_BLOCK, LOG_TO_BLOCK);
     const received = await usdc.queryFilter(usdc.filters.Transfer(null, DEMO_ADDRESS), LOG_FROM_BLOCK, LOG_TO_BLOCK);
     for (const event of [...sent, ...received].sort((a, b) => a.blockNumber - b.blockNumber)) {
       const { from, to, value } = event.args;
       const item = document.createElement("li");
       item.textContent = `block ${event.blockNumber}: ${from.slice(0, 10)}... -> ${to.slice(0, 10)}...  `
-                       + `${formatUnits(value, 6)} USDC`;
+        + `${formatUnits(value, 6)} USDC`;
       list.appendChild(item);
     }
     setBadge("panel-transfers", goodBadge);
