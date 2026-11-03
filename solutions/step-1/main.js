@@ -64,11 +64,11 @@ let providerKind = "plain";
 function createProvider(rpcUrl) {
   providerKind = "colibri";
   const colibri = new Colibri({
-    prover:        [PROVER_URL],
-    checkpointz:   [CHECKPOINTZ_URL],
-    zk_proof:      true,
-    rpcs:          [rpcUrl],
-    prover_mode:   "hybrid",
+    prover: [PROVER_URL],
+    checkpointz: [CHECKPOINTZ_URL],
+    zk_proof: true,
+    rpcs: [rpcUrl],
+    prover_mode: "hybrid",
     proofStrategy: Strategy.VerifiedOnly,
   });
   return new BrowserProvider(colibri);
