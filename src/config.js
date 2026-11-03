@@ -7,6 +7,11 @@
 // Remote Colibri prover endpoint. Used from step 1 on. Keep it mainnet.
 export const PROVER_URL = "https://mainnet.colibri-proof.tech";
 
+// Checkpoint sync endpoint Colibri bootstraps its trust anchor from. Set
+// explicitly because most public checkpointz servers send no CORS headers,
+// so the browser would reject them.
+export const CHECKPOINTZ_URL = "https://mainnet1.colibri-proof.tech/consensus";
+
 // Entries for the "Data source" dropdown in the header.
 // The default is the *lying* RPC on purpose: step 0 shows the lie, step 1
 // swaps only the provider and the UI reveals it. Participants do not run the

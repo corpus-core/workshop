@@ -14,30 +14,36 @@
 
 import { JsonRpcProvider, BrowserProvider, Contract, Interface, formatEther, formatUnits, MaxUint256 } from "ethers";
 import {
-  PROVER_URL, RPC_OPTIONS, USDC_ADDRESS, USDC_ABI, DEMO_ADDRESS,
+  PROVER_URL, CHECKPOINTZ_URL, RPC_OPTIONS, USDC_ADDRESS, USDC_ABI, DEMO_ADDRESS,
   LOG_FROM_BLOCK, LOG_TO_BLOCK, DEMO_SPENDER,
 } from "./config.js";
+
+// import Colibri, { Strategy } from "@corpus-core/colibri-stateless";
+
 
 // Fetch monitor (panel 4): wrap the global fetch once, before anything else
 // runs. ethers and Colibri both call globalThis.fetch, so all their traffic
 // shows up here. ethers sends the body as bytes, hence the TextDecoder.
 const logEl = document.querySelector("#panel-provider [data-log]");
 const originalFetch = window.fetch.bind(window);
+const shorten = (text, max) => (text.length > max ? text.slice(0, max - 3) + "..." : text);
 window.fetch = async (input, init) => {
-  const url = typeof input === "string" ? input : input.url;
+  const url = new URL(input.url ?? input, location.href);
+  const method = (init?.method ?? input.method ?? "GET").toUpperCase();
+  // GET requests (block proofs, checkpoints) say everything in their path;
+  // POST requests are JSON-RPC, so the interesting part is the body.
+  let line = `${method.padEnd(4)} ${shorten(url.host + url.pathname + url.search, 90)}`;
   const body = init?.body;
-  let summary = "(no body)";
   if (body) {
     try {
       const text = typeof body === "string" ? body : new TextDecoder().decode(body);
       const parsed = JSON.parse(text);
-      summary = (Array.isArray(parsed) ? parsed : [parsed]).map(call => {
-        const params = JSON.stringify(call.params ?? []);
-        return `${call.method}(${params.length > 80 ? params.slice(0, 77) + "..." : params})`;
-      }).join("\n    ");
-    } catch { summary = "binary"; }
+      line += (Array.isArray(parsed) ? parsed : [parsed])
+        .map(call => `\n     ${call.method}(${shorten(JSON.stringify(call.params ?? []), 80)})`)
+        .join("");
+    } catch { line += "  (binary body)"; }
   }
-  logEl.textContent += `${new URL(url).host}  ${summary}\n`;
+  logEl.textContent += `${line}\n`;
   logEl.scrollTop = logEl.scrollHeight;
   return originalFetch(input, init);
 };
@@ -55,8 +61,10 @@ let providerKind = "plain";
 //
 //   providerKind = "colibri";
 //   const colibri = new Colibri({
-//     prover: [PROVER_URL],                 // signed block headers come from here
-//     rpcs:   [rpcUrl],                     // account + storage data still from the RPC
+//     prover:        [PROVER_URL],          // signed block headers come from here
+//     checkpointz:   [CHECKPOINTZ_URL],     // trust anchor; needs CORS in the browser
+//     zk_proof:      true,                  // bootstrap from a ZK sync proof instead
+//     rpcs:          [rpcUrl],              // account + storage data still from the RPC
 //     prover_mode:   "hybrid",
 //     proofStrategy: Strategy.VerifiedOnly, // never fall back to unverified data
 //   });
@@ -67,6 +75,20 @@ function createProvider(rpcUrl) {
   providerKind = "plain";
   // staticNetwork: we know it is mainnet, so ethers skips the eth_chainId probe.
   return new JsonRpcProvider(rpcUrl, "mainnet", { staticNetwork: true });
+}
+
+// colibri as provider
+function createProvider_colibri(rpcUrl) {
+  providerKind = "colibri";
+  const colibri = new Colibri({
+    prover: [PROVER_URL],
+    checkpointz: [CHECKPOINTZ_URL],
+    zk_proof: true,
+    rpcs: [rpcUrl],
+    prover_mode: "hybrid",
+    proofStrategy: Strategy.VerifiedOnly,
+  });
+  return new BrowserProvider(colibri);
 }
 
 // Fill the dropdown and the static texts.
@@ -135,7 +157,7 @@ async function loadAll() {
 }
 document.getElementById("load").addEventListener("click", loadAll);
 
-// ===== STEP 2: simulate & explain =====
+// ===== STEP 3: simulate & explain =====
 //
 // Colibri can run DEMO_TX in its own EVM against proven state and tell you
 // what it would change -- before anything is signed. Replace the stub with:
@@ -147,11 +169,5 @@ document.getElementById("load").addEventListener("click", loadAll);
 document.getElementById("simulate").addEventListener("click", () => {
   const output = document.querySelector("#panel-tx [data-sim]");
   output.hidden = false;
-  output.textContent = "Not implemented yet -- this is step 2.";
+  output.textContent = "Not implemented yet -- this is step 3.";
 });
-
-// ===== STEP 3: privacy =====
-//
-// Add `privacy_mode: "basic"` to the Colibri config in createProvider. Then
-// press Load and Simulate again and compare panel 4 with before: which
-// request carried your full transaction to the RPC?

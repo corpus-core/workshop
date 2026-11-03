@@ -6,8 +6,8 @@ Hands-on companion to the Devcon 8 workshop
 A tiny vanilla-JS web app built on [ethers.js](https://docs.ethers.org/v6/)
 talks to an RPC provider that lies about one account. In three short steps you
 put [`@corpus-core/colibri-stateless`](https://www.npmjs.com/package/@corpus-core/colibri-stateless)
-between ethers and the RPC and watch the lies disappear, then add simulation
-and privacy on top.
+between ethers and the RPC and watch the lies disappear, then add privacy
+and simulation on top.
 
 ## Two ways to follow along
 
@@ -57,23 +57,24 @@ data sources:
   header, so Colibri refuses to return a value.
 - Honest RPC -> correct value, `verified`.
 
-### Step 2 -- simulate (`colibri_simulateTransaction`)
+### Step 2 -- privacy (`privacy_mode: "basic"`)
 
-Wire the "Simulate & explain" button to Colibri's local EVM. The pending
-`approve(unlimited)` transaction is executed against proven state, and the
-state changes land in the panel -- *before* anything would be signed.
-
-### Step 3 -- privacy (`privacy_mode: "basic"`)
-
-Add one config field, then press Load and Simulate again and compare panel 4.
-Without it, the simulation sends `eth_createAccessList` with your full
-transaction (spender, amount) to the RPC. With PAP the EVM discovers the
-storage it needs itself, so only `eth_getProof` / `eth_getStorageAt` leave the
+Add one config field, then press Load again and compare panel 4. Without it,
+Colibri sends `eth_createAccessList` with the full calldata of the USDC
+`balanceOf` call to the RPC. With PAP the EVM discovers the storage it needs
+itself, so only `eth_getCode` / `eth_getStorageAt` / `eth_getProof` leave the
 client.
 
 What `basic` does *not* hide: those proof requests still name the contract and
 storage slot, and `eth_getLogs` goes out unchanged. Hiding the proof requests
 as well needs `oblivious_nodes` (TEE RPC endpoints) -- see the Colibri README.
+
+### Step 3 -- simulate (`colibri_simulateTransaction`)
+
+Wire the "Simulate & explain" button to Colibri's local EVM. The pending
+`approve(unlimited)` transaction is executed against proven state, and the
+state changes land in the panel -- *before* anything would be signed. Because
+privacy is already on, the transaction itself never reaches the RPC.
 
 ## What panel 4 shows
 
